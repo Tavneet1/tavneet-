@@ -1,40 +1,30 @@
 import mongoose from "mongoose";
 
 const connectDb = (handler) => async (req, res) => {
+  // 1. Check if we have an active connection (readyState 1)
   if (mongoose.connection.readyState === 1) {
-    // Already connected
     return handler(req, res);
   }
 
   try {
+    // 2. Connect with streamlined options
+    // useNewUrlParser and useUnifiedTopology are no longer needed
     await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       ssl: true,
-      tlsAllowInvalidCertificates: true, // Important for TLS handshake fix
+      tlsAllowInvalidCertificates: true, // Keep this if you have specific TLS issues
     });
 
-    console.log("MongoDB connected in middleware");
+    console.log("MongoDB connected successfully");
     return handler(req, res);
 
   } catch (error) {
-    console.error("MongoDB connection error in middleware", error);
-    res.status(500).json({ message: "Database connection failed" });
+    console.error("MongoDB connection error:", error);
+    // 3. Gracefully handle the error for the API response
+    return res.status(500).json({ 
+      success: false, 
+      message: "Database connection failed" 
+    });
   }
 };
 
 export default connectDb;
-
-
-
-// import mongoose from "mongoose";
-
-// const connectDb = handler => async (req,  res)=>{
-//     if(mongoose.connection[0].readyState){
-//         return handler(req, res)
-//     }
-//     await mongoose.connect(process.env.MONGO_URI)
-//     return handler(req, res)
-// }
-
-// export default connectDb;
