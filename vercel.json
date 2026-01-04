@@ -1,12 +1,9 @@
 {
   "rewrites": [
     {
-      "source": "/api/logout",
-      "destination": "/api/logout"
-    },
-    {
       "source": "/(.*)",
       "destination": "/"
     }
   ]
 }
+
